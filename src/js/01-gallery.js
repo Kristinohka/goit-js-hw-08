@@ -1,54 +1,26 @@
-import { galleryItems } from './gallery-items.js';
-// Change code below this line
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+import { galleryItems } from './gallery-items';
 
-const galleryBox = document.querySelector('.gallery');
-const galleryMarkap = createGaleryMarkup(galleryItems);
+const gallery = document.querySelector('.gallery');
 
-galleryBox.insertAdjacentHTML('beforeend', galleryMarkap);
+const imageEl = galleryItems
+  .map(
+    ({ preview, original, description }) => `
+<a class="gallery__item" href="${original}">
+  <img class="gallery__image" src="${preview}" alt="${description}" />
+</a>`
+  )
+  .join('');
 
-galleryBox.addEventListener('click', onImageOfGalleryClick);
+gallery.insertAdjacentHTML('beforeend', imageEl);
+gallery.addEventListener('click', onImageClick);
 
-function createGaleryMarkup(galleryItems) {
-  return galleryItems
-    .map(
-      image => `
-<div class="gallery__item">
-  <a class="gallery__link" href="large-image.jpg">
-    <img
-      class="gallery__image"
-      src="${image.preview}"
-      data-source="${image.original}" 
-      alt="${image.description}"
-    />
-  </a>
-</div>
-`
-    )
-    .join('');
+function onImageClick(event) {
+  event.preventDefault();
 }
 
-function onImageOfGalleryClick(evt) {
-  evt.preventDefault();
-  if (!evt.target.classList.contains('gallery__image')) {
-    return;
-  }
-  const originalImage = evt.target.dataset.source;
-  const options = {
-    onShow: () => {
-      window.addEventListener('keydown', onKeyEscpPress);
-    },
-    onClose: () => {
-      window.removeEventListener('keydown', onKeyEscpPress);
-    },
-  };
-
-  const instance = basicLightbox.create(`<img src="${originalImage}"/>`, options);
-  instance.show();
-
-  function onKeyEscpPress(evt) {
-    if (evt.code !== 'Escape') {
-      return;
-    }
-    instance.close();
-  }
-}
+const lightbox = new SimpleLightbox('.gallery a', {
+  captionsData: `alt`,
+  captionDelay: `250`,
+});
